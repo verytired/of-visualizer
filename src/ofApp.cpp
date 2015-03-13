@@ -3,12 +3,24 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-    //audio test
-    //todo move to AudioManager
     ofEnableAlphaBlending();
     ofSetupScreen();
     ofBackground(0, 0, 0);
     ofSetFrameRate(60);
+    
+    //video test
+    for (int i=0;i<3;i++){
+        ofVideoPlayer fingerMovie;
+        fingerMovie.loadMovie("movies/fingers.mov");
+        fingerMovie.play();
+        videos.push_back(fingerMovie);
+    }
+    
+    
+    
+    //audio test;
+    //todo move to AudioManager
+    bDrawAudio = false;
     
     // initialize the accelerometer
     //ofxAccelerometer.setup();
@@ -51,38 +63,55 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
+    for (int i=0;i<3;i++){
+        videos[i].update();
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofSetColor(255, 255, 255, 255);
     
-    //draw fft output
-    float xinc = 900.0 / fftSize * 2.0;
-    for (int i = 0; i < fftSize / 2; i++) {
-        float height = mfft.magnitudesDB[i] / 50.0 * 200;
-        ofRect(0 + (i * xinc), 250 - height, 2, height);
-    }
-    //draw phases
-    ofSetColor(0, 255, 0, 100);
-    for (int i = 0; i < fftSize / 2; i++) {
-        float height = mfft.phases[i] / 50.0 * 200;
-        ofRect(0 + (i * xinc), 360 - height, 2, height);
+    //video
+    for (int i=0;i<3;i++){
+            ofSetColor(255);
+        videos[i].draw(5+330*i,5,320,240);
     }
     
-    //octave analyser
-    ofSetColor(255, 0, 0, 100);
-    xinc = 900.0 / oct.nAverages;
-    for (int i = 0; i < oct.nAverages; i++) {
-        float height = oct.averages[i] / 50.0 * 100;
-        ofRect(0 + (i * xinc), 500 - height, 2, height);
+
+    //audio
+    if(bDrawAudio){
+        ofSetColor(255, 255, 255, 255);
+        
+        //draw fft output
+        float xinc = 900.0 / fftSize * 2.0;
+        for (int i = 0; i < fftSize / 2; i++) {
+            float height = mfft.magnitudesDB[i] / 50.0 * 200;
+            ofRect(0 + (i * xinc), 250 - height, 2, height);
+        }
+        //draw phases
+        ofSetColor(0, 255, 0, 100);
+        for (int i = 0; i < fftSize / 2; i++) {
+            float height = mfft.phases[i] / 50.0 * 200;
+            ofRect(0 + (i * xinc), 360 - height, 2, height);
+        }
+        
+        //octave analyser
+        ofSetColor(255, 0, 0, 100);
+        xinc = 900.0 / oct.nAverages;
+        for (int i = 0; i < oct.nAverages; i++) {
+            float height = oct.averages[i] / 50.0 * 100;
+            ofRect(0 + (i * xinc), 500 - height, 2, height);
+        }
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    switch (key){
+        case ' ':
+            bDrawAudio = !bDrawAudio;
+            break;
+    }
 }
 
 //--------------------------------------------------------------
@@ -131,7 +160,7 @@ void ofApp::audioRequested(float *output, int bufferSize, int nChannels) {
         ofLog(OF_LOG_ERROR, "your buffer size was set to %i - but the stream needs a buffer size of %i", initialBufferSize, bufferSize);
         return;
     }
-    
+        
     for (int i = 0; i < bufferSize; i++) {
     }
     
@@ -140,7 +169,7 @@ void ofApp::audioRequested(float *output, int bufferSize, int nChannels) {
         sample = sample1.play(1.);
         channel1.stereo(sample, outputs, 0.5);
         
-        //波形は生成しない
+        //Ê≥¢ÂΩ¢„ÅØÁîüÊàê„Åó„Å™„ÅÑ
         //wave = osc.saw(maxiMap::linexp(mouseY + ofGetWindowPositionY(), 0, ofGetScreenHeight(), 200, 8000));
 
         //get fft
@@ -158,7 +187,7 @@ void ofApp::audioRequested(float *output, int bufferSize, int nChannels) {
             //			memset(mfft.phases + hpCutoff, 0, sizeof(float) * (bins - hpCutoff));
             mfft.magsToDB();
             oct.calculate(mfft.magnitudesDB);
-            cout << mfft.spectralFlatness() << ", " << mfft.spectralCentroid() << endl;
+//            cout << mfft.spectralFlatness() << ", " << mfft.spectralCentroid() << endl;
         }
         //inverse fft
         gettimeofday(&callTS, NULL);

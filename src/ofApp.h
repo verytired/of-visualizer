@@ -20,7 +20,13 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
+    //todo video loading
+    vector<ofVideoPlayer> videos;
+    
+    
     //todo move to AudioManager
+    Boolean bDrawAudio;
+    
     void audioReceived(float *input, int bufferSize, int nChannels);
     void audioRequested(float *output, int bufferSize, int nChannels);
     
