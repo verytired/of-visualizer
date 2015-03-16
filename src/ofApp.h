@@ -22,7 +22,9 @@ class ofApp : public ofBaseApp{
     
     //todo video loading
     vector<ofVideoPlayer> videos;
+    int currentVideoNum = 0;
     
+    ofVideoGrabber vidGrabber;
     
     //todo move to AudioManager
     Boolean bDrawAudio;

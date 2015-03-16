@@ -16,7 +16,9 @@ void ofApp::setup(){
         videos.push_back(fingerMovie);
     }
     
-    
+    //webCam
+    vidGrabber.setVerbose(true);
+    vidGrabber.initGrabber(320,240);
     
     //audio test;
     //todo move to AudioManager
@@ -63,6 +65,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    vidGrabber.update();
     for (int i=0;i<3;i++){
         videos[i].update();
     }
@@ -77,7 +80,17 @@ void ofApp::draw(){
         videos[i].draw(5+330*i,5,320,240);
     }
     
-
+    // webCam
+    vidGrabber.draw(5,255,320,240);
+    
+    //movie change
+    ofSetColor(255);
+    if(currentVideoNum<=3){
+    videos[currentVideoNum].draw(335,255,320,240);
+    }else if(currentVideoNum==4){
+        vidGrabber.draw(335,255,320,240);
+    }
+    
     //audio
     if(bDrawAudio){
         ofSetColor(255, 255, 255, 255);
@@ -110,6 +123,18 @@ void ofApp::keyPressed(int key){
     switch (key){
         case ' ':
             bDrawAudio = !bDrawAudio;
+            break;
+        case '1':
+            currentVideoNum = 0;
+            break;
+        case '2':
+            currentVideoNum = 1;
+            break;
+        case '3':
+            currentVideoNum = 2;
+            break;  
+        case '4':
+            currentVideoNum = 4;
             break;
     }
 }
