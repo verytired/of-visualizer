@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxMaxim.h"
 #include "ofxPostGlitch.h"
+#include "ofxUI.h"
 
 class ofApp : public ofBaseApp{
 
@@ -35,6 +36,11 @@ class ofApp : public ofBaseApp{
     //glitch
     ofFbo myFbo;
     ofxPostGlitch myGlitch;
+    
+    //gui
+    ofxUISuperCanvas *gui;
+    void setGui();
+    void guiEvent(ofxUIEventArgs &e);
     
     //todo move to AudioManager
     Boolean bDrawAudio;
@@ -74,3 +80,4 @@ class ofApp : public ofBaseApp{
     timeval callTS, callEndTS;
 		
 };
+

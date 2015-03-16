@@ -8,6 +8,9 @@ void ofApp::setup(){
     ofBackground(0, 0, 0);
     ofSetFrameRate(60);
     
+    //gui
+    setGui();
+    
     //video file loading
     fin.open(ofToDataPath("filelist.txt", true).c_str());
     if(fin.fail()) {
@@ -162,6 +165,9 @@ void ofApp::keyPressed(int key){
         case '4':
             currentVideoNum = 4;
             break;
+        case 'h':
+            gui->toggleVisible();
+            break;
     }
     
     //todo change efx
@@ -295,4 +301,59 @@ void ofApp::audioRequested(float *output, int bufferSize, int nChannels) {
 
 //--------------------------------------------------------------
 void ofApp::audioReceived(float *input, int bufferSize, int nChannels) {
+}
+
+//----
+void ofApp::setGui(){
+    gui = new ofxUISuperCanvas("POSTGLITCH");
+    gui->addSpacer();
+    gui->addLabel("Press 'h' to Hide GUIs", OFX_UI_FONT_SMALL);
+    
+    gui->addSpacer();
+    gui->addLabel("LABEL TOGGLES", OFX_UI_FONT_MEDIUM);
+    gui->addLabelToggle("CONVERGENCE", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("GLOW", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("SHAKER", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("CUTSLIDER", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("TWIST", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("OUTLINE", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("NOISE", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("SLITSCAN", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("SWELL", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("INVERT", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+
+    gui->setPosition(0, 0);
+    gui->autoSizeToFitWidgets();
+    
+    ofAddListener(gui->newGUIEvent,this,&ofApp::guiEvent);
+}
+
+void ofApp::guiEvent(ofxUIEventArgs &e)
+{
+//    if (key == '1') myGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE	, true);
+//    if (key == '2') myGlitch.setFx(OFXPOSTGLITCH_GLOW			, true);
+//    if (key == '3') myGlitch.setFx(OFXPOSTGLITCH_SHAKER			, true);
+//    if (key == '4') myGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER		, true);
+//    if (key == '5') myGlitch.setFx(OFXPOSTGLITCH_TWIST			, true);
+//    if (key == '6') myGlitch.setFx(OFXPOSTGLITCH_OUTLINE		, true);
+//    if (key == '7') myGlitch.setFx(OFXPOSTGLITCH_NOISE			, true);
+//    if (key == '8') myGlitch.setFx(OFXPOSTGLITCH_SLITSCAN		, true);
+//    if (key == '9') myGlitch.setFx(OFXPOSTGLITCH_SWELL			, true);
+//    if (key == '0') myGlitch.setFx(OFXPOSTGLITCH_INVERT			, true);
+    
+    string name = e.getName();
+    int kind = e.getKind();
+    cout << "got event from: " << name << endl;
+    if(name == "CONVERGENCE"){
+    }else if(name == "CONVERGENCE"){
+    }else if(name == "GLOW"){
+    }else if(name == "SHAKER"){
+    }else if(name == "CUTSLIDER"){
+    }else if(name == "TWIST"){
+    }else if(name == "OUTLINE"){
+    }else if(name == "NOISE"){
+    }else if(name == "SLITSCAN"){
+    }else if(name == "SWELL"){
+    }else if(name == "INVERT"){
+    }
 }
