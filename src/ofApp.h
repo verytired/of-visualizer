@@ -26,6 +26,11 @@ class ofApp : public ofBaseApp{
     
     ofVideoGrabber vidGrabber;
     
+    ifstream fin;
+    string line;
+    vector<string> lines, videoFilePath;
+    float X,Y;
+    
     //todo move to AudioManager
     Boolean bDrawAudio;
     

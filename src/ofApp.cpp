@@ -8,13 +8,24 @@ void ofApp::setup(){
     ofBackground(0, 0, 0);
     ofSetFrameRate(60);
     
-    //video test
-    for (int i=0;i<3;i++){
-        ofVideoPlayer fingerMovie;
-        fingerMovie.loadMovie("movies/fingers.mov");
-        fingerMovie.play();
-        videos.push_back(fingerMovie);
+    //video file loading
+    fin.open(ofToDataPath("filelist.txt", true).c_str());
+    if(fin.fail()) {
+        cerr << "File do not exist.\n";
     }
+    while(getline(fin, line)){
+        lines=(ofSplitString(line, "\t"));
+        for (int i=0; i < lines.size(); i++){
+            videoFilePath.push_back(lines[i]);
+            
+            ofVideoPlayer fingerMovie;
+            fingerMovie.loadMovie(lines[i]);
+            fingerMovie.play();
+            videos.push_back(fingerMovie);
+            
+        }
+    }
+    fin.close();
     
     //webCam
     vidGrabber.setVerbose(true);
