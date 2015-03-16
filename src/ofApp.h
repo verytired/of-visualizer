@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxMaxim.h"
+#include "ofxPostGlitch.h"
 
 class ofApp : public ofBaseApp{
 
@@ -30,6 +31,10 @@ class ofApp : public ofBaseApp{
     string line;
     vector<string> lines, videoFilePath;
     float X,Y;
+    
+    //glitch
+    ofFbo myFbo;
+    ofxPostGlitch myGlitch;
     
     //todo move to AudioManager
     Boolean bDrawAudio;

@@ -1,3 +1,7 @@
+ofxGui
 ofxOpenCv
+ofxXmlSettings
 ofxMaxim
+ofxPostGlitch
+ofxStateMachine
 ofxUI

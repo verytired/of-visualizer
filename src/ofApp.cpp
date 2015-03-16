@@ -31,6 +31,10 @@ void ofApp::setup(){
     vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(320,240);
     
+    //glitch setup
+    myFbo.allocate(320,240);
+    myGlitch.setup(&myFbo);
+    
     //audio test;
     //todo move to AudioManager
     bDrawAudio = false;
@@ -80,6 +84,10 @@ void ofApp::update(){
     for (int i=0;i<3;i++){
         videos[i].update();
     }
+    
+    //glitch
+    myGlitch.setFx(OFXPOSTGLITCH_NOISE,true);
+
 }
 
 //--------------------------------------------------------------
@@ -92,15 +100,22 @@ void ofApp::draw(){
     }
     
     // webCam
+ 
     vidGrabber.draw(5,255,320,240);
     
+    myFbo.begin();
     //movie change
     ofSetColor(255);
     if(currentVideoNum<=3){
-    videos[currentVideoNum].draw(335,255,320,240);
+    videos[currentVideoNum].draw(0,0,320,240);
     }else if(currentVideoNum==4){
-        vidGrabber.draw(335,255,320,240);
+        vidGrabber.draw(0,0,320,240);
     }
+    
+    myFbo.end();
+    
+    myGlitch.generateFx();
+    myFbo.draw(335,255);
     
     //audio
     if(bDrawAudio){
@@ -147,6 +162,43 @@ void ofApp::keyPressed(int key){
         case '4':
             currentVideoNum = 4;
             break;
+    }
+    
+    //todo change efx
+    /*
+     if (key == '1') myGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE	, true);
+     if (key == '2') myGlitch.setFx(OFXPOSTGLITCH_GLOW			, true);
+     if (key == '3') myGlitch.setFx(OFXPOSTGLITCH_SHAKER			, true);
+     if (key == '4') myGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER		, true);
+     if (key == '5') myGlitch.setFx(OFXPOSTGLITCH_TWIST			, true);
+     if (key == '6') myGlitch.setFx(OFXPOSTGLITCH_OUTLINE		, true);
+     if (key == '7') myGlitch.setFx(OFXPOSTGLITCH_NOISE			, true);
+     if (key == '8') myGlitch.setFx(OFXPOSTGLITCH_SLITSCAN		, true);
+     if (key == '9') myGlitch.setFx(OFXPOSTGLITCH_SWELL			, true);
+     if (key == '0') myGlitch.setFx(OFXPOSTGLITCH_INVERT			, true);
+     
+     if (key == 'q') myGlitch.setFx(OFXPOSTGLITCH_CR_HIGHCONTRAST, true);
+     if (key == 'w') myGlitch.setFx(OFXPOSTGLITCH_CR_BLUERAISE	, true);
+     if (key == 'e') myGlitch.setFx(OFXPOSTGLITCH_CR_REDRAISE	, true);
+     if (key == 'r') myGlitch.setFx(OFXPOSTGLITCH_CR_GREENRAISE	, true);
+     if (key == 't') myGlitch.setFx(OFXPOSTGLITCH_CR_BLUEINVERT	, true);
+     if (key == 'y') myGlitch.setFx(OFXPOSTGLITCH_CR_REDINVERT	, true);
+     if (key == 'u') myGlitch.setFx(OFXPOSTGLITCH_CR_GREENINVERT	, true);
+     
+     if (key == 'l') bDrawLenna ^= true;
+     if (key == 'h') bShowHelp ^= true;
+
+     
+     */
+    if (key == 's'){
+        // ofImage定義
+        ofImage myImage;
+        
+        //キャプチャの描画
+        myImage.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+        
+        //書き出し
+        myImage.saveImage("./file_name.png", OF_IMAGE_QUALITY_BEST);
     }
 }
 
@@ -205,7 +257,7 @@ void ofApp::audioRequested(float *output, int bufferSize, int nChannels) {
         sample = sample1.play(1.);
         channel1.stereo(sample, outputs, 0.5);
         
-        //Ê≥¢ÂΩ¢„ÅØÁîüÊàê„Åó„Å™„ÅÑ
+        //√ä‚â•¬¢√ÇŒ©¬¢‚Äû√Ö√ò√Å√Æ√º√ä√†√™‚Äû√Ö√≥‚Äû√Ö‚Ñ¢‚Äû√Ö√ë
         //wave = osc.saw(maxiMap::linexp(mouseY + ofGetWindowPositionY(), 0, ofGetScreenHeight(), 200, 8000));
 
         //get fft
