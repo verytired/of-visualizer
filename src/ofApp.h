@@ -36,6 +36,10 @@ class ofApp : public ofBaseApp{
     //glitch
     ofFbo myFbo;
     ofxPostGlitch myGlitch;
+
+    int filterNum = 10;
+    vector<bool> bFilter;
+    bool bFilter0,bFilter1,bFilter2,bFilter3,bFilter4,bFilter5,bFilter6,bFilter7,bFilter8,bFilter9;
     
     //gui
     ofxUISuperCanvas *gui;
@@ -43,7 +47,7 @@ class ofApp : public ofBaseApp{
     void guiEvent(ofxUIEventArgs &e);
     
     //todo move to AudioManager
-    Boolean bDrawAudio;
+    bool bDrawAudio;
     
     void audioReceived(float *input, int bufferSize, int nChannels);
     void audioRequested(float *output, int bufferSize, int nChannels);

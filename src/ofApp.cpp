@@ -8,9 +8,6 @@ void ofApp::setup(){
     ofBackground(0, 0, 0);
     ofSetFrameRate(60);
     
-    //gui
-    setGui();
-    
     //video file loading
     fin.open(ofToDataPath("filelist.txt", true).c_str());
     if(fin.fail()) {
@@ -37,6 +34,10 @@ void ofApp::setup(){
     //glitch setup
     myFbo.allocate(320,240);
     myGlitch.setup(&myFbo);
+    //filter flag
+    for(int i= 0;i<filterNum;i++){
+        bFilter.push_back(false);
+    }
     
     //audio test;
     //todo move to AudioManager
@@ -79,6 +80,8 @@ void ofApp::setup(){
     
     sample1.load(ofToDataPath("beat2.wav"));
 
+    //gui
+    setGui();
 }
 
 //--------------------------------------------------------------
@@ -89,7 +92,7 @@ void ofApp::update(){
     }
     
     //glitch
-    myGlitch.setFx(OFXPOSTGLITCH_NOISE,true);
+    //myGlitch.setFx(OFXPOSTGLITCH_NOISE,true);
 
 }
 
@@ -103,7 +106,6 @@ void ofApp::draw(){
     }
     
     // webCam
- 
     vidGrabber.draw(5,255,320,240);
     
     myFbo.begin();
@@ -191,10 +193,6 @@ void ofApp::keyPressed(int key){
      if (key == 'y') myGlitch.setFx(OFXPOSTGLITCH_CR_REDINVERT	, true);
      if (key == 'u') myGlitch.setFx(OFXPOSTGLITCH_CR_GREENINVERT	, true);
      
-     if (key == 'l') bDrawLenna ^= true;
-     if (key == 'h') bShowHelp ^= true;
-
-     
      */
     if (key == 's'){
         // ofImage定義
@@ -260,7 +258,7 @@ void ofApp::audioRequested(float *output, int bufferSize, int nChannels) {
     
     //	static double tm;
     for (int i = 0; i < bufferSize; i++) {
-        sample = sample1.play(1.);
+        sample = sample1.play(0.);
         channel1.stereo(sample, outputs, 0.5);
         
         //√ä‚â•¬¢√ÇŒ©¬¢‚Äû√Ö√ò√Å√Æ√º√ä√†√™‚Äû√Ö√≥‚Äû√Ö‚Ñ¢‚Äû√Ö√ë
@@ -308,19 +306,16 @@ void ofApp::setGui(){
     gui = new ofxUISuperCanvas("POSTGLITCH");
     gui->addSpacer();
     gui->addLabel("Press 'h' to Hide GUIs", OFX_UI_FONT_SMALL);
-    
-    gui->addSpacer();
-    gui->addLabel("LABEL TOGGLES", OFX_UI_FONT_MEDIUM);
-    gui->addLabelToggle("CONVERGENCE", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("GLOW", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("SHAKER", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("CUTSLIDER", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("TWIST", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("OUTLINE", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("NOISE", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("SLITSCAN", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("SWELL", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
-    gui->addLabelToggle("INVERT", false)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("CONVERGENCE", &bFilter0)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("GLOW", &bFilter1)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("SHAKER", &bFilter2)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("CUTSLIDER", &bFilter3)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("TWIST", &bFilter4)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("OUTLINE", &bFilter5)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("NOISE", &bFilter6)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("SLITSCAN", &bFilter7)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("SWELL", &bFilter8)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
+    gui->addLabelToggle("INVERT", &bFilter9)->getLabelWidget()->setColorFill(ofColor(255, 0, 0));
 
     gui->setPosition(0, 0);
     gui->autoSizeToFitWidgets();
@@ -330,30 +325,32 @@ void ofApp::setGui(){
 
 void ofApp::guiEvent(ofxUIEventArgs &e)
 {
-//    if (key == '1') myGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE	, true);
-//    if (key == '2') myGlitch.setFx(OFXPOSTGLITCH_GLOW			, true);
-//    if (key == '3') myGlitch.setFx(OFXPOSTGLITCH_SHAKER			, true);
-//    if (key == '4') myGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER		, true);
-//    if (key == '5') myGlitch.setFx(OFXPOSTGLITCH_TWIST			, true);
-//    if (key == '6') myGlitch.setFx(OFXPOSTGLITCH_OUTLINE		, true);
-//    if (key == '7') myGlitch.setFx(OFXPOSTGLITCH_NOISE			, true);
-//    if (key == '8') myGlitch.setFx(OFXPOSTGLITCH_SLITSCAN		, true);
-//    if (key == '9') myGlitch.setFx(OFXPOSTGLITCH_SWELL			, true);
-//    if (key == '0') myGlitch.setFx(OFXPOSTGLITCH_INVERT			, true);
-    
+
     string name = e.getName();
     int kind = e.getKind();
     cout << "got event from: " << name << endl;
+    cout << bFilter0 << endl;
+        cout << bFilter[1] << endl;
     if(name == "CONVERGENCE"){
     }else if(name == "CONVERGENCE"){
+        myGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE, bFilter0);
     }else if(name == "GLOW"){
+        myGlitch.setFx(OFXPOSTGLITCH_GLOW			, bFilter1);
     }else if(name == "SHAKER"){
+        myGlitch.setFx(OFXPOSTGLITCH_SHAKER			, bFilter2);
     }else if(name == "CUTSLIDER"){
+        myGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER		, bFilter3);
     }else if(name == "TWIST"){
+        myGlitch.setFx(OFXPOSTGLITCH_TWIST			, bFilter4);
     }else if(name == "OUTLINE"){
+        myGlitch.setFx(OFXPOSTGLITCH_OUTLINE		, bFilter5);
     }else if(name == "NOISE"){
+        myGlitch.setFx(OFXPOSTGLITCH_NOISE			, bFilter6);
     }else if(name == "SLITSCAN"){
+        myGlitch.setFx(OFXPOSTGLITCH_SLITSCAN		, bFilter7);
     }else if(name == "SWELL"){
+         myGlitch.setFx(OFXPOSTGLITCH_SWELL			, bFilter8);
     }else if(name == "INVERT"){
+        myGlitch.setFx(OFXPOSTGLITCH_INVERT			, bFilter9);
     }
 }
