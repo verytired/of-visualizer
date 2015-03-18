@@ -33,6 +33,8 @@ class ofApp : public ofBaseApp{
     vector<string> lines, videoFilePath;
     float X,Y;
     
+    bool bWebCam;
+    
     //glitch
     ofFbo myFbo;
     ofxPostGlitch myGlitch;
@@ -42,7 +44,7 @@ class ofApp : public ofBaseApp{
     bool bFilter0,bFilter1,bFilter2,bFilter3,bFilter4,bFilter5,bFilter6,bFilter7,bFilter8,bFilter9;
     
     //gui
-    ofxUISuperCanvas *gui;
+    ofx UISuperCanvas *gui;
     void setGui();
     void guiEvent(ofxUIEventArgs &e);
     

@@ -17,7 +17,6 @@ void ofApp::setup(){
         lines=(ofSplitString(line, "\t"));
         for (int i=0; i < lines.size(); i++){
             videoFilePath.push_back(lines[i]);
-            
             ofVideoPlayer fingerMovie;
             fingerMovie.loadMovie(lines[i]);
             fingerMovie.play();
@@ -29,6 +28,7 @@ void ofApp::setup(){
     fin.close();
     
     //webCam
+    bWebCam = false;
     vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(640,480);
     
@@ -82,7 +82,7 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     vidGrabber.update();
-    for (int i=0;i<3;i++){
+    for (int i=0;i<4;i++){
         videos[i].update();
     }
 }
@@ -91,20 +91,24 @@ void ofApp::update(){
 void ofApp::draw(){
     
     //video
-    for (int i=0;i<3;i++){
+    for (int i=0;i<4;i++){
         ofSetColor(255);
         videos[i].draw(222+170*i,30,160,120);
     }
 
+    
+    ofSetColor(255, 255, 255, 255);
     // webCam
-            ofSetColor(255, 255, 255, 255);
-    vidGrabber.draw(222+170*3,30,160,120);
+    if(bWebCam){
+        vidGrabber.draw(222+170*3,30,160,120);
+    }
+    
   
     myFbo.begin();
     //movie change
     ofSetColor(255);
     if(currentVideoNum<=3){
-    videos[currentVideoNum].draw(0,0,640,480);
+        videos[currentVideoNum].draw(0,0,640,480);
     }else if(currentVideoNum==4){
         vidGrabber.draw(0,0,640,480);
     }
@@ -119,7 +123,7 @@ void ofApp::draw(){
     ofDrawBitmapString("1:Video1", 220, 20);
     ofDrawBitmapString("2:Video2", 220+170, 20);
     ofDrawBitmapString("3:Video3", 220+170*2, 20);
-    ofDrawBitmapString("4:WebCam", 220+170*3, 20);
+    ofDrawBitmapString("4:Video4 / WebCam", 220+170*3, 20);
     ofDrawBitmapString("Rendered", 220, 200);
     
     //audio
@@ -165,10 +169,20 @@ void ofApp::keyPressed(int key){
             currentVideoNum = 2;
             break;  
         case '4':
-            currentVideoNum = 4;
+            if(bWebCam == true){
+                currentVideoNum = 4;
+            }else{
+                currentVideoNum = 3;
+            }
+            
             break;
         case 'h':
             gui->toggleVisible();
+            break;
+        case 'w':
+            bWebCam = !bWebCam;
+            if(currentVideoNum == 3)currentVideoNum = 4;
+            else if(currentVideoNum == 4)currentVideoNum = 3;
             break;
     }
     
