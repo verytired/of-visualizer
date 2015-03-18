@@ -44,7 +44,7 @@ class ofApp : public ofBaseApp{
     bool bFilter0,bFilter1,bFilter2,bFilter3,bFilter4,bFilter5,bFilter6,bFilter7,bFilter8,bFilter9;
     
     //gui
-    ofx UISuperCanvas *gui;
+    ofxUISuperCanvas *gui;
     void setGui();
     void guiEvent(ofxUIEventArgs &e);
     
