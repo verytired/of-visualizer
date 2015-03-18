@@ -5,7 +5,7 @@ void ofApp::setup(){
     
     ofEnableAlphaBlending();
     ofSetupScreen();
-    ofBackground(0, 0, 0);
+    ofBackground(222, 222, 222);
     ofSetFrameRate(60);
     
     //video file loading
@@ -21,6 +21,7 @@ void ofApp::setup(){
             ofVideoPlayer fingerMovie;
             fingerMovie.loadMovie(lines[i]);
             fingerMovie.play();
+            fingerMovie.setVolume(0.0);
             videos.push_back(fingerMovie);
             
         }
@@ -29,10 +30,10 @@ void ofApp::setup(){
     
     //webCam
     vidGrabber.setVerbose(true);
-    vidGrabber.initGrabber(320,240);
+    vidGrabber.initGrabber(640,480);
     
     //glitch setup
-    myFbo.allocate(320,240);
+    myFbo.allocate(640,480);
     myGlitch.setup(&myFbo);
     //filter flag
     for(int i= 0;i<filterNum;i++){
@@ -42,12 +43,6 @@ void ofApp::setup(){
     //audio test;
     //todo move to AudioManager
     bDrawAudio = false;
-    
-    // initialize the accelerometer
-    //ofxAccelerometer.setup();
-    
-    //iPhoneAlerts will be sent to this.
-//    ofxiPhoneAlerts.addListener(this);
     
     /* This is stuff you always need.*/
     sampleRate          = 44100; /* Sampling Rate */
@@ -90,10 +85,6 @@ void ofApp::update(){
     for (int i=0;i<3;i++){
         videos[i].update();
     }
-    
-    //glitch
-    //myGlitch.setFx(OFXPOSTGLITCH_NOISE,true);
-
 }
 
 //--------------------------------------------------------------
@@ -101,26 +92,35 @@ void ofApp::draw(){
     
     //video
     for (int i=0;i<3;i++){
-            ofSetColor(255);
-        videos[i].draw(5+330*i,5,320,240);
+        ofSetColor(255);
+        videos[i].draw(222+170*i,30,160,120);
     }
-    
+
     // webCam
-    vidGrabber.draw(5,255,320,240);
-    
+            ofSetColor(255, 255, 255, 255);
+    vidGrabber.draw(222+170*3,30,160,120);
+  
     myFbo.begin();
     //movie change
     ofSetColor(255);
     if(currentVideoNum<=3){
-    videos[currentVideoNum].draw(0,0,320,240);
+    videos[currentVideoNum].draw(0,0,640,480);
     }else if(currentVideoNum==4){
-        vidGrabber.draw(0,0,320,240);
+        vidGrabber.draw(0,0,640,480);
     }
     
     myFbo.end();
     
     myGlitch.generateFx();
-    myFbo.draw(335,255);
+    myFbo.draw(222,215);
+    
+    //label
+    ofSetHexColor(0x000000);
+    ofDrawBitmapString("1:Video1", 220, 20);
+    ofDrawBitmapString("2:Video2", 220+170, 20);
+    ofDrawBitmapString("3:Video3", 220+170*2, 20);
+    ofDrawBitmapString("4:WebCam", 220+170*3, 20);
+    ofDrawBitmapString("Rendered", 220, 200);
     
     //audio
     if(bDrawAudio){
@@ -172,28 +172,6 @@ void ofApp::keyPressed(int key){
             break;
     }
     
-    //todo change efx
-    /*
-     if (key == '1') myGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE	, true);
-     if (key == '2') myGlitch.setFx(OFXPOSTGLITCH_GLOW			, true);
-     if (key == '3') myGlitch.setFx(OFXPOSTGLITCH_SHAKER			, true);
-     if (key == '4') myGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER		, true);
-     if (key == '5') myGlitch.setFx(OFXPOSTGLITCH_TWIST			, true);
-     if (key == '6') myGlitch.setFx(OFXPOSTGLITCH_OUTLINE		, true);
-     if (key == '7') myGlitch.setFx(OFXPOSTGLITCH_NOISE			, true);
-     if (key == '8') myGlitch.setFx(OFXPOSTGLITCH_SLITSCAN		, true);
-     if (key == '9') myGlitch.setFx(OFXPOSTGLITCH_SWELL			, true);
-     if (key == '0') myGlitch.setFx(OFXPOSTGLITCH_INVERT			, true);
-     
-     if (key == 'q') myGlitch.setFx(OFXPOSTGLITCH_CR_HIGHCONTRAST, true);
-     if (key == 'w') myGlitch.setFx(OFXPOSTGLITCH_CR_BLUERAISE	, true);
-     if (key == 'e') myGlitch.setFx(OFXPOSTGLITCH_CR_REDRAISE	, true);
-     if (key == 'r') myGlitch.setFx(OFXPOSTGLITCH_CR_GREENRAISE	, true);
-     if (key == 't') myGlitch.setFx(OFXPOSTGLITCH_CR_BLUEINVERT	, true);
-     if (key == 'y') myGlitch.setFx(OFXPOSTGLITCH_CR_REDINVERT	, true);
-     if (key == 'u') myGlitch.setFx(OFXPOSTGLITCH_CR_GREENINVERT	, true);
-     
-     */
     if (key == 's'){
         // ofImage定義
         ofImage myImage;
