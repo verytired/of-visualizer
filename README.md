@@ -1,8 +1,11 @@
 # of-visualizer
-Visulizer by openFrameworks
+Visulizer Demo by openFrameworks
 
 ## Need to Install Addon 
-- ofxMaxim 
-https://github.com/micknoise/Maximilian
+
 - ofxUI
 https://github.com/rezaali/ofxUI
+- ofxPostGlitch
+https://github.com/maxillacult/ofxPostGlitch
+- ofxBeatTracking
+https://github.com/verytired/ofxBeatTracking
