@@ -1,9 +1,9 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxMaxim.h"
 #include "ofxPostGlitch.h"
 #include "ofxUI.h"
+#include "ofxBeatTracking.h"
 
 class ofApp : public ofBaseApp{
 
@@ -34,7 +34,6 @@ class ofApp : public ofBaseApp{
     float X,Y;
     
     bool bWebCam;
-    
     //glitch
     ofFbo myFbo;
     ofxPostGlitch myGlitch;
@@ -48,42 +47,14 @@ class ofApp : public ofBaseApp{
     void setGui();
     void guiEvent(ofxUIEventArgs &e);
     
-    //todo move to AudioManager
+    //audio
+    ofTrueTypeFont  fbook;
+    void audioReceived(float* input, int bufferSize, int nChannels);
+    ofxBeatTracking bd;
     bool bDrawAudio;
-    
-    void audioReceived(float *input, int bufferSize, int nChannels);
-    void audioRequested(float *output, int bufferSize, int nChannels);
-    
-    int initialBufferSize; /* buffer size */
-    int sampleRate;
-    
-    ofxMaxiOsc myOsc1;
-    ofxMaxiSample sample1;
-    ofxMaxiMix channel1;
-    
-    float *lAudioOut;    /* outputs */
-    float *rAudioOut;
-    
-    float *lAudioIn;  /* inputs */
-    float *rAudioIn;
-    
-    /* stick you maximilian stuff below */
-    double wave, sample, outputs[2], ifftVal;
-    maxiMix mymix;
-    maxiOsc osc;
-    
-    ofxMaxiFFTOctaveAnalyzer oct;
-    int nAverages;
-    float *ifftOutput;
-    int ifftSize;
-    
-    ofxMaxiIFFT ifft;
-    ofxMaxiFFT mfft;
-    int fftSize;
-    int bins, dataSize;
-    
-    float callTime;
-    timeval callTS, callEndTS;
-		
+
+    //changeView
+    void changeView();
+    bool dice();
 };
 

@@ -1,5 +1,14 @@
 #include "ofApp.h"
 #include "sys/time.h"
+
+int testApp_buffer_size = 1024;
+int testApp_fft_size = 512;
+
+
+bool detect=true;
+bool drumVisible = true;
+bool snareVisible = true;
+bool hihatVisible = true;
 //--------------------------------------------------------------
 void ofApp::setup(){
     
@@ -7,6 +16,7 @@ void ofApp::setup(){
     ofSetupScreen();
     ofBackground(222, 222, 222);
     ofSetFrameRate(60);
+    ofSetVerticalSync(true);
     
     //video file loading
     fin.open(ofToDataPath("filelist.txt", true).c_str());
@@ -40,43 +50,13 @@ void ofApp::setup(){
         bFilter.push_back(false);
     }
     
-    //audio test;
-    //todo move to AudioManager
-    bDrawAudio = false;
-    
-    /* This is stuff you always need.*/
-    sampleRate          = 44100; /* Sampling Rate */
-    initialBufferSize   = 512;  /* Buffer Size. you have to fill this buffer with sound*/
-    lAudioOut           = new float[initialBufferSize];/* outputs */
-    rAudioOut           = new float[initialBufferSize];
-    lAudioIn            = new float[initialBufferSize];/* inputs */
-    rAudioIn            = new float[initialBufferSize];
-    
-    /* This is a nice safe piece of code */
-    memset(lAudioOut, 0, initialBufferSize * sizeof(float));
-    memset(rAudioOut, 0, initialBufferSize * sizeof(float));
-    
-    memset(lAudioIn, 0, initialBufferSize * sizeof(float));
-    memset(rAudioIn, 0, initialBufferSize * sizeof(float));
-    
-    /* Now you can put anything you would normally put in maximilian's 'setup' method in here. */
-    fftSize = 1024;
-    mfft.setup(fftSize, 1024, 256);
-    ifft.setup(fftSize, 1024, 256);
-    
-    nAverages = 12;
-    oct.setup(sampleRate, fftSize / 2, nAverages);
-    
-    ofxMaxiSettings::setup(sampleRate, 2, initialBufferSize);
-    
-    ofSoundStreamSetup(2, 0, this, sampleRate, initialBufferSize, 4);/* Call this last ! */
-    
-    ofSetVerticalSync(true);
-    
-    sample1.load(ofToDataPath("beat2.wav"));
-
     //gui
     setGui();
+    
+    //audio
+    ofSoundStreamSetup(0, 1, this, 44100, testApp_buffer_size, 4);
+    fbook.loadFont("frabk.ttf", 32, true, false);
+    bDrawAudio = false;
 }
 
 //--------------------------------------------------------------
@@ -85,6 +65,7 @@ void ofApp::update(){
     for (int i=0;i<4;i++){
         videos[i].update();
     }
+    bd.updateFFT();
 }
 
 //--------------------------------------------------------------
@@ -126,31 +107,91 @@ void ofApp::draw(){
     ofDrawBitmapString("4:Video4 / WebCam", 220+170*3, 20);
     ofDrawBitmapString("Rendered", 220, 200);
     
-    //audio
-    if(bDrawAudio){
-        ofSetColor(255, 255, 255, 255);
-        
-        //draw fft output
-        float xinc = 900.0 / fftSize * 2.0;
-        for (int i = 0; i < fftSize / 2; i++) {
-            float height = mfft.magnitudesDB[i] / 50.0 * 200;
-            ofRect(0 + (i * xinc), 250 - height, 2, height);
-        }
-        //draw phases
-        ofSetColor(0, 255, 0, 100);
-        for (int i = 0; i < fftSize / 2; i++) {
-            float height = mfft.phases[i] / 50.0 * 200;
-            ofRect(0 + (i * xinc), 360 - height, 2, height);
-        }
-        
-        //octave analyser
-        ofSetColor(255, 0, 0, 100);
-        xinc = 900.0 / oct.nAverages;
-        for (int i = 0; i < oct.nAverages; i++) {
-            float height = oct.averages[i] / 50.0 * 100;
-            ofRect(0 + (i * xinc), 500 - height, 2, height);
-        }
-    }
+     if(bDrawAudio){
+         char str[32];
+         
+         // 取得したFFTの値は bd.magnitude[i] のようにすればアクセス可能
+         // 以下では取得したFFTをbd.magnitude[i]の形式でアクセスしてFFTを描画する
+         // 生のFFTの値を描画 (1列目)
+         ofSetColor(155,155,75);
+         for (int i = 1; i < (int)testApp_fft_size/2; i++){
+             if(i % 16 == 0) {
+                 ofSetColor(200,0,0);
+             } else {
+                 ofSetColor(155,155,75);
+             }
+             ofLine(10+(i*3),150,  10+(i*3),150-bd.magnitude[i]*10.0f);
+             //printf("%f \n", magnitude_average[i]);
+         }
+         // 画面に入りきらないので2列目
+         for (int i = (int)testApp_fft_size/2,b = 1; i<testApp_fft_size ; i++){
+             if(i % 16 == 0) {
+                 ofSetColor(200,0,0);
+             } else {
+                 ofSetColor(155,155,75);
+             }
+             ofLine(10+(b*3),300,  10+(b*3),300-bd.magnitude[i]*10.0f);
+             b++;
+             //printf("%f \n", magnitude_average[i]);
+         }
+         
+         
+         // 平均化されたFFTの値を描画 (1列目)
+         ofSetColor(134,113,89);
+         for (int i = 1; i < (int)testApp_fft_size/2; i++){
+             if(i % 16 == 0) {
+                 ofSetColor(200,0,0);
+             } else {
+                 ofSetColor(134,113,89);
+             }
+             ofLine(10+(i*3),500,  10+(i*3),500-bd.magnitude_average[i]*10.0f);
+         }
+         // 画面に入り切らないので2列
+         for (int i = (int)testApp_fft_size/2,b = 1; i<testApp_fft_size ; i++){
+             if(i % 16 == 0) {
+                 ofSetColor(200,0,0);
+             } else {
+                 ofSetColor(134,113,89);
+             }
+             ofLine(10+(b*3),650,  10+(b*3),650-bd.magnitude_average[i]*10.0f);
+             b++;
+         }
+         
+         // ドラム音の検出
+         if(drumVisible){
+             if(bd.isBeatRange(0,2,2)){
+                 ofSetColor(255,0,0);
+                 fbook.drawString("DRUM!!",100,735);
+                 changeView();
+             }else{
+                 ofSetColor(0,255,0);
+                 ofRect(100,700,200,50);
+             }
+         }
+         
+         // スネア音の検出
+         if(snareVisible){
+             if(bd.isBeatRange(12,18,4)){
+                 ofSetColor(255,0,0);
+                 fbook.drawString("SNARE!!", 350, 735);
+             }else{
+                 ofSetColor(0,255,0);
+                 ofRect(350,700,200,50);
+             }
+         }
+         
+         // ハイハット音の検出
+         if(hihatVisible){
+             if(bd.isBeatRange(27,31,3)){
+                 ofSetColor(255,0,0);
+                 fbook.drawString("HiHat!!", 600, 735);
+             }else{
+                 ofSetColor(0,255,0);
+                 ofRect(600,700,200,50);
+             }
+         }
+         
+     }
 }
 
 //--------------------------------------------------------------
@@ -239,58 +280,8 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 //--------------------------------------------------------------
-void ofApp::audioRequested(float *output, int bufferSize, int nChannels) {
-    if (initialBufferSize != bufferSize) {
-        ofLog(OF_LOG_ERROR, "your buffer size was set to %i - but the stream needs a buffer size of %i", initialBufferSize, bufferSize);
-        return;
-    }
-        
-    for (int i = 0; i < bufferSize; i++) {
-    }
-    
-    //	static double tm;
-    for (int i = 0; i < bufferSize; i++) {
-        sample = sample1.play(0.);
-        channel1.stereo(sample, outputs, 0.5);
-        
-        //√ä‚â•¬¢√ÇŒ©¬¢‚Äû√Ö√ò√Å√Æ√º√ä√†√™‚Äû√Ö√≥‚Äû√Ö‚Ñ¢‚Äû√Ö√ë
-        //wave = osc.saw(maxiMap::linexp(mouseY + ofGetWindowPositionY(), 0, ofGetScreenHeight(), 200, 8000));
-
-        //get fft
-        //if (mfft.process(wave)) {
-        if (mfft.process(sample)) {
-            int bins = fftSize / 2.0;
-            //do some manipulation
-//            int hpCutoff = floor(((mouseX + ofGetWindowPositionX()) / (float)ofGetScreenWidth()) * fftSize / 2.0);
-            int hpCutoff = 1;
-            //highpass
-            memset(mfft.magnitudes, 0, sizeof(float) * hpCutoff);
-            memset(mfft.phases, 0, sizeof(float) * hpCutoff);
-            //lowpass
-            //			memset(mfft.magnitudes + hpCutoff, 0, sizeof(float) * (bins - hpCutoff));
-            //			memset(mfft.phases + hpCutoff, 0, sizeof(float) * (bins - hpCutoff));
-            mfft.magsToDB();
-            oct.calculate(mfft.magnitudesDB);
-//            cout << mfft.spectralFlatness() << ", " << mfft.spectralCentroid() << endl;
-        }
-        //inverse fft
-        gettimeofday(&callTS, NULL);
-        ifftVal = ifft.process(mfft.magnitudes, mfft.phases);
-        gettimeofday(&callEndTS, NULL);
-        callTime = (float)(callEndTS.tv_usec - callTS.tv_usec) / 1000000.0;
-        callTime += (float)(callEndTS.tv_sec - callTS.tv_sec);
-        //play result
-        mymix.stereo(ifftVal, outputs, 0.5);
-        //		float mix = ((mouseX + ofGetWindowPositionX()) / (float) ofGetScreenWidth());
-        //		mymix.stereo((wave * mix) + ((1.0-mix) * ifftVal), outputs, 0.5);
-        
-        lAudioOut[i] = output[i * nChannels] = outputs[0];   /* You may end up with lots of outputs. add them here */
-        rAudioOut[i] = output[i * nChannels + 1] = outputs[1];
-    }
-}
-
-//--------------------------------------------------------------
 void ofApp::audioReceived(float *input, int bufferSize, int nChannels) {
+    bd.audioReceived(input, bufferSize);
 }
 
 //----
@@ -345,4 +336,38 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
     }else if(name == "INVERT"){
         myGlitch.setFx(OFXPOSTGLITCH_INVERT			, bFilter9);
     }
+}
+
+void ofApp::changeView(){
+    currentVideoNum++;
+    if(currentVideoNum>3){
+        currentVideoNum=0;
+    }
+    bFilter0 = dice();
+    bFilter1 = dice();
+    bFilter2 = dice();
+    bFilter3 = dice();
+    bFilter4 = dice();
+    bFilter5 = dice();
+    bFilter6 = dice();
+    bFilter7 = dice();
+    bFilter8 = dice();
+    bFilter9 = dice();
+    myGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE, bFilter0);
+    myGlitch.setFx(OFXPOSTGLITCH_GLOW			, bFilter1);
+    myGlitch.setFx(OFXPOSTGLITCH_SHAKER			, bFilter2);
+    myGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER		, bFilter3);
+    myGlitch.setFx(OFXPOSTGLITCH_TWIST			, bFilter4);
+    myGlitch.setFx(OFXPOSTGLITCH_OUTLINE		, bFilter5);
+    myGlitch.setFx(OFXPOSTGLITCH_NOISE			, bFilter6);
+    myGlitch.setFx(OFXPOSTGLITCH_SLITSCAN		, bFilter7);
+    myGlitch.setFx(OFXPOSTGLITCH_SWELL			, bFilter8);
+    myGlitch.setFx(OFXPOSTGLITCH_INVERT			, bFilter9);
+}
+
+bool ofApp::dice(){
+    bool flag = false;
+    float r = ofRandom(0,100);
+    if(r>50)flag = true;
+    return flag;
 }
